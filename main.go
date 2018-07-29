@@ -1,14 +1,27 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/http"
 	"time"
 )
 
+type Response struct {
+	Result string `json:"result"`
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	enc := json.NewEncoder(w)
 	unsei := omikujiExec()
+	resp := &Response{
+		Result: unsei,
+	}
+	if err := enc.Encode(resp); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 	fmt.Fprint(w, "今日の運勢は"+unsei+"です")
 }
 func main() {
